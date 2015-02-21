@@ -144,7 +144,8 @@ func (h *ResourceHandler) LogLine(code int, start *time.Time, req *http.Request)
 	)
 }
 
-func (h *ResourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *ResourceHandler) ServeHTTP(wOrig http.ResponseWriter, r *http.Request) {
+	w := &ResponseWrapper{wOrig, 200, false}
 	start := time.Now()
 
 	// set a default Logger
@@ -164,8 +165,20 @@ func (h *ResourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	context.Set(r, HandlerContextKey, h)
 	// defer context.Clear(r) <- no need with gorilla's mux/pat
-
 	h.Router.ServeHTTP(w, r)
-	// FIXME: not always 200!
-	h.LogLine(200, &start, r)
+	h.LogLine(w.Code, &start, r)
+}
+
+type ResponseWrapper struct {
+	http.ResponseWriter
+	Code        int // the HTTP response code from WriteHeader
+	wroteHeader bool
+}
+
+func (rw *ResponseWrapper) WriteHeader(code int) {
+	if !rw.wroteHeader {
+		rw.Code = code
+	}
+	rw.wroteHeader = true
+	rw.ResponseWriter.WriteHeader(code)
 }

@@ -129,14 +129,19 @@ func NewResourceHandler(limit int, filePath string) *ResourceHandler {
 }
 
 func (h *ResourceHandler) LogLine(code int, start *time.Time, req *http.Request) {
+	message := ""
+	if h.LogStackTrace {
+		trace := debug.Stack()
+		message = fmt.Sprintf("\n%s", trace)
+	}
 	h.Logger.Println(
 		code,
 		&start,
 		time.Now().Sub(*start),
 		req.Method,
 		req.URL.RequestURI(),
+		message,
 	)
-
 }
 
 func (h *ResourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -149,13 +154,7 @@ func (h *ResourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// (this does not use the JSON error response on purpose)
 	defer func() {
 		if rec := recover(); rec != nil {
-			trace := debug.Stack()
-			h.Logger.Printf("%s\n%s", r, trace)
-
 			message := "Internal Server Error"
-			if h.LogStackTrace {
-				message = fmt.Sprintf("%s\n\n%s", r, trace)
-			}
 			http.Error(w, message, http.StatusInternalServerError)
 
 			// log response

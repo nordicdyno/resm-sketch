@@ -71,7 +71,7 @@ func tablesRun(t *testing.T, rh *ResourceHandler, tests []handlerTest) {
 			//log.Println(exp, "VS", got, "->", reflect.DeepEqual(got, exp))
 
 			if !reflect.DeepEqual(got, exp) {
-				t.Errorf("%s: Got: %v, Expect: %s = %v", test.Desc, record.Body, test.MatchJSON)
+				t.Errorf("%s: Got: %v, Expect: %s", test.Desc, record.Body, test.MatchJSON)
 			}
 		}
 

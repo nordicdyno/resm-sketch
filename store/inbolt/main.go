@@ -41,7 +41,7 @@ func NewStorage(file string, limit int) (*Storage, error) {
 		if err != nil && err != bolt.ErrBucketNotFound {
 			return fmt.Errorf("delete bucket %s: %s", string(name), err)
 		}
-        //log.Println("bucket deleted!")
+		//log.Println("bucket deleted!")
 
 		b, err := tx.CreateBucket(name)
 		if err != nil {
@@ -49,7 +49,7 @@ func NewStorage(file string, limit int) (*Storage, error) {
 		}
 
 		for _, id := range store.GenResourcesIds(limit) {
-            //log.Println("allocate", id)
+			//log.Println("allocate", id)
 			buf := &bytes.Buffer{}
 			r := Resource{
 				Id:      id,
@@ -133,7 +133,7 @@ func (s *Storage) List() (*store.ResourcesInfo, error) {
 }
 
 func (s *Storage) Allocate(user string) (string, error) {
-    id := ""
+	id := ""
 	err := s.db.Update(func(tx *bolt.Tx) error {
 		name := []byte(BucketName)
 		b := tx.Bucket(name)
@@ -151,7 +151,7 @@ func (s *Storage) Allocate(user string) (string, error) {
 				continue
 			}
 
-            id = res.Id
+			id = res.Id
 			buf := &bytes.Buffer{}
 			res.OwnedBy = user
 			res.Free = false
@@ -172,9 +172,9 @@ func (s *Storage) Allocate(user string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-    if id == "" {
-        return "", store.ErrResourcesIsOver
-    }
+	if id == "" {
+		return "", store.ErrResourcesIsOver
+	}
 	return id, nil
 }
 
@@ -189,7 +189,7 @@ func (s *Storage) Deallocate(id string) error {
 
 		v := b.Get([]byte(id))
 		if v == nil {
-            //log.Println("not found", id)
+			//log.Println("not found", id)
 			return store.ErrResourcesNotFound
 		}
 
@@ -199,10 +199,10 @@ func (s *Storage) Deallocate(id string) error {
 		if err := dec.Decode(&res); err != nil {
 			return fmt.Errorf("fail decode data %v: %s", v, err)
 		}
-        //log.Printf("'%v' Get result => %v", id, spew.Sdump(res))
-        if res.OwnedBy == "" {
-            return store.ErrResourcesNotFound
-        }
+		//log.Printf("'%v' Get result => %v", id, spew.Sdump(res))
+		if res.OwnedBy == "" {
+			return store.ErrResourcesNotFound
+		}
 
 		buf := &bytes.Buffer{}
 		res.OwnedBy = ""

@@ -1,10 +1,9 @@
 package store
 
 import (
-    "errors"
-    "strconv"
+	"errors"
+	"strconv"
 )
-
 
 type ResourcesList []string
 
@@ -25,14 +24,14 @@ type ResourceAllocater interface {
 }
 
 var (
-    ErrResourcesIsOver = errors.New("Resources are over")
-    ErrResourcesNotFound = errors.New("Resource not found")
+	ErrResourcesIsOver   = errors.New("Resources are over")
+	ErrResourcesNotFound = errors.New("Resource not found")
 )
 
 func GenResourcesIds(limit int) []string {
-    ids := make([]string, limit)
-    for i := 0; i< limit; i++ {
-        ids[i] = "r" + strconv.Itoa(i)
-    }
-    return ids
+	ids := make([]string, limit)
+	for i := 0; i < limit; i++ {
+		ids[i] = "r" + strconv.Itoa(i)
+	}
+	return ids
 }

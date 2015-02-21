@@ -5,17 +5,18 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
-    "github.com/nordicdyno/resm-sketch/store"
-    "strconv")
+	"github.com/nordicdyno/resm-sketch/store"
+	"strconv"
+)
 
 var sTen *Storage
 
 func TestMain(t *testing.T) {
 	var err error
 	sTen, err = NewStorage(10)
-    if err != nil {
-        t.Error("Create inmemory storage failed", err)
-    }
+	if err != nil {
+		t.Error("Create inmemory storage failed", err)
+	}
 }
 
 var _ = spew.Config
@@ -38,14 +39,14 @@ func TestList(t *testing.T) {
 
 func TestAllocateByUser(t *testing.T) {
 	for i := 0; i < 10; i++ {
-        user := "t" + strconv.Itoa(i)
+		user := "t" + strconv.Itoa(i)
 		id, err := sTen.Allocate(user)
 		if err != nil {
 			t.Error("Allocation failed on step", i, err)
 		}
-        if id == "" {
-            t.Error("Allocation failed on step", i, "id is empty")
-        }
+		if id == "" {
+			t.Error("Allocation failed on step", i, "id is empty")
+		}
 		log.Println(id, "resource created for user", user)
 	}
 
@@ -73,11 +74,11 @@ func TestDeallocateById(t *testing.T) {
 			log.Println(id, "resource deallocated for user", user)
 		}
 	}
-    firstId := store.GenResourcesIds(1)[0]
-    err = sTen.Deallocate(firstId)
-    if err == nil {
-        t.Error("Deallocate not failed for resource", firstId, err)
-    }
+	firstId := store.GenResourcesIds(1)[0]
+	err = sTen.Deallocate(firstId)
+	if err == nil {
+		t.Error("Deallocate not failed for resource", firstId, err)
+	}
 	//sTen.Dump()
 	//log.Fatalln("bye!")
 

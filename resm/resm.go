@@ -164,6 +164,8 @@ func (h *ResourceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	context.Set(r, HandlerContextKey, h)
+	// defer context.Clear(r) <- no need with gorilla's mux/pat
+
 	h.Router.ServeHTTP(w, r)
 	// FIXME: not always 200!
 	h.LogLine(200, &start, r)

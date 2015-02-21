@@ -109,18 +109,24 @@ func NewResourceHandler(limit int, filePath string) *ResourceHandler {
 	}
 
 	r := mux.NewRouter()
+
+	getHandlers := []struct {
+		path string
+		fn   func(http.ResponseWriter, *http.Request)
+	}{
+		{"/allocate/{user}", allocateResourceUser},
+		{"/deallocate/{resource_id}", deallocateResource},
+		{"/reset", resetResources},
+		{"/list", listResources},
+		{"/list/{user}", listUserResources},
+	}
+	for _, gH := range getHandlers {
+		r.HandleFunc(gH.path, gH.fn).Methods("GET")
+	}
 	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(BadRequestMessage))
 	})
-
-	r.HandleFunc("/allocate/{user}", allocateResourceUser)
-	r.HandleFunc("/deallocate/{resource_id}", deallocateResource)
-	r.HandleFunc("/reset", resetResources)
-	r.HandleFunc("/list", listResources)
-	r.HandleFunc("/list/{user}", listUserResources)
-
-	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
 	return &ResourceHandler{
 		Router:  r,

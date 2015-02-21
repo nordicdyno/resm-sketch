@@ -14,10 +14,28 @@ run_bolt: build
 build:
 	go install github.com/nordicdyno/resm-sketch/resm
 
-test:
+test: test-plain test-vet
+
+test-plain:
 	go test github.com/nordicdyno/resm-sketch/store/inmemory
 	go test github.com/nordicdyno/resm-sketch/store/inbolt
 	go test github.com/nordicdyno/resm-sketch/resm
+
+test-cover:
+	go get golang.org/x/tools/cmd/cover
+	go test -cover github.com/nordicdyno/resm-sketch/store/inmemory
+	go test -cover github.com/nordicdyno/resm-sketch/store/inbolt
+	go test -cover github.com/nordicdyno/resm-sketch/resm
+
+# mostly useless now, because tests are non concurrent yet
+test-race:
+	go get golang.org/x/tools/cmd/cover
+	go test -race github.com/nordicdyno/resm-sketch/store/inmemory
+	go test -race github.com/nordicdyno/resm-sketch/store/inbolt
+	go test -race github.com/nordicdyno/resm-sketch/resm
+
+test-vet:
+	go vet github.com/nordicdyno/resm-sketch/resm
 
 clean:
 	rm -rf .src

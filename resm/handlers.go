@@ -25,9 +25,12 @@ func allocateResourceUser(w http.ResponseWriter, r *http.Request) {
     }
     id, err := h.Storage.Allocate(user)
     if err != nil {
-        //log.Printf("error on allocating resource for user %s: %s", user, err)
-        w.WriteHeader(http.StatusServiceUnavailable)
-        return
+        if err == store.ErrResourcesIsOver {
+            w.WriteHeader(http.StatusServiceUnavailable)
+            w.Write([]byte("Out of resources.\n"))
+            return
+        }
+        panic(err)
     }
 
     w.WriteHeader(http.StatusCreated)

@@ -22,6 +22,7 @@ import (
 const (
 	DefaultResourcesLimit = 10
 	HandlerContextKey     = "Handler"
+	BadRequestMessage     = "Bad Request.\n"
 )
 
 // hack
@@ -108,11 +109,16 @@ func NewResourceHandler(limit int, filePath string) *ResourceHandler {
 	}
 
 	r := mux.NewRouter()
-    r.HandleFunc("/allocate/{user}", allocateResourceUser)
-    r.HandleFunc("/deallocate/{resource_id}", deallocateResource)
-    r.HandleFunc("/reset", resetResources)
-    r.HandleFunc("/list", listResources)
-    r.HandleFunc("/list/{user}", listUserResources)
+	r.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(BadRequestMessage))
+	})
+
+	r.HandleFunc("/allocate/{user}", allocateResourceUser)
+	r.HandleFunc("/deallocate/{resource_id}", deallocateResource)
+	r.HandleFunc("/reset", resetResources)
+	r.HandleFunc("/list", listResources)
+	r.HandleFunc("/list/{user}", listUserResources)
 
 	//r.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 

@@ -66,5 +66,5 @@ docker_build_deb: docker_build_bin
 	# " steps depends on your environment, but final ommand would be same: "
 	# "docker cp ${DEB_BUILDER_CONTAINER_NAME}:/root/resm/resm-go_1.0_amd64.deb ./"
 
-dev_go_fmt:
+fmt:
 	find . -name '*.go' -exec go fmt {} \;

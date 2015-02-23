@@ -49,7 +49,7 @@ docker_build_bin:
 	-docker rm -f ${BINARY_CONTAINER_NAME}
 	#resm-debian-runner resm-build-deb
 	docker build --rm --tag=${BINARY_IMAGE_NAME} -f docker/debian_binary_build.Dockerfile .
-	docker run -v /src --name=${BINARY_CONTAINER_NAME} ${BINARY_IMAGE_NAME}
+	docker create -v /src --name=${BINARY_CONTAINER_NAME} ${BINARY_IMAGE_NAME}
 	# docker cp /src/bin/resm bin/resm
 
 docker_supervisor: docker_build_bin
@@ -65,6 +65,9 @@ docker_build_deb: docker_build_bin
 	# "Now you can copy deb package from resm-fpm-deb-builder "
 	# " steps depends on your environment, but final ommand would be same: "
 	# "docker cp ${DEB_BUILDER_CONTAINER_NAME}:/root/resm/resm-go_1.0_amd64.deb ./"
+
+docker_supervisor_gcloud: docker_build_bin
+	docker build -rm --tag=gcloud-resm -f docker/gcloud_supervisord.Dockerfile docker/
 
 fmt:
 	find . -name '*.go' -exec go fmt {} \;

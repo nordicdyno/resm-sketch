@@ -1,17 +1,20 @@
 # Description
 
-This code is my sketch of RESTish API in Go code
+This code is my sketch of RESTish API in Go language.
 
-I've learned here Go's testing techniques, interfaces and some net/http tricks.
+I've trained Go's testing techniques, interfaces and some net/http tricks
+while implementing this.
 
-Also I've gotten my feet wet with Bolt DB (spoiler: mention -file flag)
+Also I've gotten my feet wet with Bolt DB (spoiler: mention -file flag), FPM,
+Google Compute Engine and domain names registration process.
 
 More detailed documentation is here:
 https://docs.google.com/document/d/18tENtluzSS3bKygIJ4MWBv-GkuTh8V0hG95bCFu5qWI/edit?usp=sharing
 
-# Where to test
+# Where to try
 
 Working example is accessible here: http://resm-sketch.tk
+
 It is powered with Google Compute Engine, Docker and semi-free .TK domain
 
 # How to build binary manually
@@ -23,22 +26,42 @@ It is powered with Google Compute Engine, Docker and semi-free .TK domain
 3. Fetch and compile binary: `go get github.com/nordicdyno/resm-sketch`
 4. Run it ~/gohome/bin/resm -limit=5 -verbose
 
-You also need git and mercurial
+
+_Hint: you also need to have git and mercurial installed_
 
 ## Make way
 
-1-2 Steps the same as in "Go way"
+1-2 steps same as in "Go way"
+
 3. Get sources by git `git clone git@github.com:nordicdyno/resm-sketch.git`
 4. Build and resolve dependencies `cd resm-sketch && go get .`
 5. Rebuild and run binary with `make`
 
-Hint: To run in persistent mode use target `run_bolt`: `make run_bolt`
+_Hint: To run in persistent mode use target `run_bolt`: `make run_bolt`_
 
 # How to test
 
  1. Make sure you have done build stage
  2. Run tests in sources root: `make test`
 
+# Run locally
+
+Get help:
+
+    $GOHOME/bin/resm -h
+
+In memory storage example:
+
+    resm -bind=":9090" -limit=5
+
+Persistent storage example:
+
+    resm -bind=":9090" -limit=5 -file=resources.db
+
+Test with `httpie` (https://github.com/jakubroztocil/httpie):
+
+    http -v http://localhost:9090/allocate/me
+    http -v http://localhost:9090/list/
 
 # How to build debian package
 
@@ -60,10 +83,12 @@ FPM util used for deb creation, here are useful topic links:
 
 *Requires Docker 1.5*
 
-_I am using supervisor as system runner and process manager for resm.
+_I use supervisor as a system runner and process manager for resm.
 Main reason for supervisor – I don't want to write init.d scripts.
 Because it's clumsy, error prone and not fun.
-Another reason - I just know supervisor well enough._
+Another reasons:
+* I just know supervisor well enough
+* it's a generally good idea to use process manager for Go services like that._
 
 # TODO
 
@@ -90,3 +115,5 @@ Related links:
 ### Better docs
 
 just do it for great good :)
+
+##

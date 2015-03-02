@@ -7,7 +7,6 @@ import (
 	storetest "github.com/nordicdyno/resm-sketch/store/test"
 )
 
-//var sTen *Storage
 var sTen store.ResourceAllocater
 
 func TestMain(t *testing.T) {

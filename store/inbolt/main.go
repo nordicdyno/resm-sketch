@@ -1,15 +1,15 @@
 package inbolt
 
 import (
+	"bytes"
+	"encoding/gob"
+	"fmt"
 	"log"
 	"time"
 
-	"bytes"
-	"encoding/gob"
 	"github.com/boltdb/bolt"
-
-	"fmt"
 	"github.com/davecgh/go-spew/spew"
+
 	"github.com/nordicdyno/resm-sketch/store"
 )
 
@@ -17,10 +17,10 @@ const BucketName = "Pool"
 
 type Storage struct {
 	db *bolt.DB
-	//	resources []*Resource
+	// resources []*Resource
 	// cached value
-	//	left int
-	//	sync.Mutex
+	// left int
+	// sync.Mutex
 }
 
 func NewStorage(file string, limit int) (*Storage, error) {
@@ -35,7 +35,6 @@ func NewStorage(file string, limit int) (*Storage, error) {
 		if err != nil && err != bolt.ErrBucketNotFound {
 			return fmt.Errorf("delete bucket %s: %s", string(name), err)
 		}
-		//log.Println("bucket deleted!")
 
 		b, err := tx.CreateBucket(name)
 		if err != nil {
@@ -43,7 +42,6 @@ func NewStorage(file string, limit int) (*Storage, error) {
 		}
 
 		for _, id := range store.GenResourcesIds(limit) {
-			//log.Println("allocate", id)
 			buf := &bytes.Buffer{}
 			r := store.Resource{
 				Id:   id,
@@ -57,7 +55,6 @@ func NewStorage(file string, limit int) (*Storage, error) {
 			if err != nil {
 				return fmt.Errorf("put data: %s", err)
 			}
-			//log.Println("put key", id)
 		}
 		return nil
 	})
@@ -87,7 +84,6 @@ func (s *Storage) ListByUser(user string) (store.ResourcesList, error) {
 }
 
 func (s *Storage) List() (*store.ResourcesInfo, error) {
-	//log.Println("allocate list with size of", s.left)
 	deallocated := make(store.ResourcesList, 0, 0)
 	allocated := make([]store.Resource, 0)
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -178,7 +174,6 @@ func (s *Storage) Deallocate(id string) error {
 
 		v := b.Get([]byte(id))
 		if v == nil {
-			//log.Println("not found", id)
 			return store.ErrResourcesNotFound
 		}
 
@@ -188,7 +183,6 @@ func (s *Storage) Deallocate(id string) error {
 		if err := dec.Decode(&res); err != nil {
 			return fmt.Errorf("fail decode data %v: %s", v, err)
 		}
-		//log.Printf("'%v' Get result => %v", id, spew.Sdump(res))
 		if res.User == "" {
 			return store.ErrResourcesIsFree
 		}
@@ -204,7 +198,6 @@ func (s *Storage) Deallocate(id string) error {
 		if err != nil {
 			return fmt.Errorf("put data: %s", err)
 		}
-		//log.Println("put key", res.Id)
 		return nil
 	})
 	if err != nil {
@@ -241,7 +234,6 @@ func (s *Storage) Reset() error {
 			if err != nil {
 				return fmt.Errorf("put data: %s", err)
 			}
-			//log.Println("put key", res.Id)
 		}
 		return nil
 	})

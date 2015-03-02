@@ -51,9 +51,7 @@ func (s *Storage) ListByUser(user string) (store.ResourcesList, error) {
 func (s *Storage) List() (*store.ResourcesInfo, error) {
 	s.Lock()
 	defer s.Unlock()
-	//spew.Dump(s)
 
-	//log.Println("allocate list with size of", s.left)
 	deallocated := make(store.ResourcesList, 0, s.left)
 	allocated := make([]store.Resource, 0)
 	for _, res := range s.resources {
@@ -71,7 +69,6 @@ func (s *Storage) List() (*store.ResourcesInfo, error) {
 		Allocated:   allocated,
 		Deallocated: deallocated,
 	}
-	// spew.Dump(r)
 	return r, nil
 }
 
@@ -82,14 +79,11 @@ func (s *Storage) Allocate(user string) (string, error) {
 		return "", store.ErrResourcesIsOver
 	}
 
-	//spew.Dump(s)
-
 	var item string
 	for _, res := range s.resources {
 		if !res.free {
 			continue
 		}
-		//log.Println("ALLOCATE", res)
 		res.ownedBy = user
 		res.free = false
 		item = res.id

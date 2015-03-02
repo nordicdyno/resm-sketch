@@ -3,14 +3,12 @@ package test
 import (
 	"log"
 	"os"
+	"strconv"
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/nordicdyno/resm-sketch/store"
-	"strconv"
 )
-
-//var sTen store.ResourceAllocater
 
 func ConfigureMain() {
 	if len(os.Getenv("VERBOSE")) < 1 {
@@ -35,7 +33,6 @@ func TenTestList(sTen store.ResourceAllocater, t *testing.T) {
 	if len(l.Deallocated) != 10 {
 		t.Error(10, "items should be allocated")
 	}
-	_ = l
 }
 
 func TenTestAllocateByUser(sTen store.ResourceAllocater, t *testing.T) {
@@ -54,7 +51,6 @@ func TenTestAllocateByUser(sTen store.ResourceAllocater, t *testing.T) {
 	if len(l.Deallocated) != 0 {
 		t.Error(len(l.Deallocated), "items found, but they should be out of stock")
 	}
-
 }
 
 func TenTestDeallocateById(sTen store.ResourceAllocater, t *testing.T) {

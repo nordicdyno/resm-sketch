@@ -42,23 +42,17 @@ func allocateResourceUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(id))
-
-	//log.Println("allocateResourceUser with id=", id)
-	///spew.Dump(mux.Vars(r))
 }
 
 func deallocateResource(w http.ResponseWriter, r *http.Request) {
 	h := getHandler(r)
 	id, _ := mux.Vars(r)["resource_id"]
 	err := h.Storage.Deallocate(id)
-	//log.Println("deallocateResource err => ", err)
 	if err != nil {
-		//log.Println("Resource", id, "not allocated", err)
 		switch err {
 		case store.ErrResourcesIsFree:
 			fallthrough
 		case store.ErrResourcesNotFound:
-			//log.Println("write header", http.StatusNotFound)
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(notAllocatedStr))
 		default:
@@ -76,7 +70,6 @@ func resetResources(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	//log.Println("/reset OK, header:", http.StatusNoContent)
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -108,8 +101,6 @@ func listResources(w http.ResponseWriter, r *http.Request) {
 		bAllocated.String(), string(bDeallocated),
 	)
 
-	//log.Println(string(b))
-	//log.Println("/reset OK, header:", http.StatusNoContent)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(listJSONstr))
@@ -132,8 +123,6 @@ func listUserResources(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	//log.Println(string(b))
-	//log.Println("/reset OK, header:", http.StatusNoContent)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(b)

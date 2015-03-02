@@ -2,17 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"regexp"
 	"testing"
-	//"strings"
-	//"fmt"
-	//"log"
-	"log"
-	//    "github.com/nordicdyno/resm-sketch/store"
 )
 
 type AnyJSON interface{}
@@ -44,13 +40,9 @@ func tablesRun(t *testing.T, rh *ResourceHandler, tests []handlerTest) {
 
 		got, want := record.Code, test.Status
 		_ = log.Prefix()
-		//log.Println("Got code:", got, record.Code)
-		//log.Println("Wait code:", want, test.Status)
 
 		if got != want {
-			//log.Println(got, "!=", want, "?")
 			t.Errorf("%s: response code = %d, want %d", test.Desc, got, want)
-			//t.Fatalf("%s: response code = %d, want %d", test.Desc, got, want)
 		}
 
 		if test.Match != nil {
@@ -64,11 +56,9 @@ func tablesRun(t *testing.T, rh *ResourceHandler, tests []handlerTest) {
 		if test.MatchJSON != "" {
 			var exp, got AnyJSON
 			gotBytes := record.Body.Bytes()
-			//log.Println(test.MatchJSON, "cmp", string(gotBytes))
 
 			json.Unmarshal(gotBytes, &got)
 			json.Unmarshal([]byte(test.MatchJSON), &exp)
-			//log.Println(exp, "VS", got, "->", reflect.DeepEqual(got, exp))
 
 			if !reflect.DeepEqual(got, exp) {
 				t.Errorf("%s: Got: %v, Expect: %s", test.Desc, record.Body, test.MatchJSON)
@@ -80,14 +70,6 @@ func tablesRun(t *testing.T, rh *ResourceHandler, tests []handlerTest) {
 		}
 	}
 }
-
-//
-//var handlers []store.ResourceAllocater
-//
-//func TestMain(t *testing.T) {
-//    rh_bolt := NewResourceHandler(2, "test.db")
-//
-//}
 
 func TestAllocateResetAndList(t *testing.T) {
 	tests := []handlerTest{

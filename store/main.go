@@ -7,14 +7,14 @@ import (
 
 type ResourcesList []string
 
-type ResourceUserPair struct {
+type Resource struct {
 	Id   string
 	User string
 }
 
 // ResourcesInfo struct for report
 type ResourcesInfo struct {
-	Allocated   []ResourceUserPair
+	Allocated   []Resource
 	Deallocated ResourcesList
 }
 

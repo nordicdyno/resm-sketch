@@ -55,13 +55,13 @@ func (s *Storage) List() (*store.ResourcesInfo, error) {
 
 	//log.Println("allocate list with size of", s.left)
 	deallocated := make(store.ResourcesList, 0, s.left)
-	allocated := make([]store.ResourceUserPair, 0)
+	allocated := make([]store.Resource, 0)
 	for _, res := range s.resources {
 		if res.free {
 			deallocated = append(deallocated, res.id)
 			continue
 		}
-		allocated = append(allocated, store.ResourceUserPair{
+		allocated = append(allocated, store.Resource{
 			Id:   res.id,
 			User: res.ownedBy,
 		})

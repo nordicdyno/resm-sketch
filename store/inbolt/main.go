@@ -15,12 +15,6 @@ import (
 
 const BucketName = "Pool"
 
-type Resource struct {
-	Id      string
-	Free    bool
-	OwnedBy string
-}
-
 type Storage struct {
 	db *bolt.DB
 	//	resources []*Resource
@@ -51,10 +45,9 @@ func NewStorage(file string, limit int) (*Storage, error) {
 		for _, id := range store.GenResourcesIds(limit) {
 			//log.Println("allocate", id)
 			buf := &bytes.Buffer{}
-			r := Resource{
-				Id:      id,
-				Free:    true,
-				OwnedBy: "",
+			r := store.Resource{
+				Id:   id,
+				User: "",
 			}
 			err := gob.NewEncoder(buf).Encode(r)
 			if err != nil {
@@ -96,13 +89,13 @@ func (s *Storage) ListByUser(user string) (store.ResourcesList, error) {
 func (s *Storage) List() (*store.ResourcesInfo, error) {
 	//log.Println("allocate list with size of", s.left)
 	deallocated := make(store.ResourcesList, 0, 0)
-	allocated := make([]store.ResourceUserPair, 0)
+	allocated := make([]store.Resource, 0)
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BucketName))
 		c := b.Cursor()
 
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			res := Resource{}
+			res := store.Resource{}
 			dec := gob.NewDecoder(bytes.NewBuffer(v))
 
 			if err := dec.Decode(&res); err != nil {
@@ -110,14 +103,11 @@ func (s *Storage) List() (*store.ResourcesInfo, error) {
 			}
 
 			//log.Printf("key=%s, value=%v\n", k, res)
-			if res.Free {
+			if res.User == "" {
 				deallocated = append(deallocated, res.Id)
 				continue
 			}
-			allocated = append(allocated, store.ResourceUserPair{
-				Id:   res.Id,
-				User: res.OwnedBy,
-			})
+			allocated = append(allocated, res)
 		}
 		return nil
 	})
@@ -140,21 +130,20 @@ func (s *Storage) Allocate(user string) (string, error) {
 
 		c := b.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			res := Resource{}
+			res := store.Resource{}
 			dec := gob.NewDecoder(bytes.NewBuffer(v))
 
 			if err := dec.Decode(&res); err != nil {
 				return fmt.Errorf("decode data %v: %s", v, err)
 			}
 
-			if !res.Free {
+			if res.User != "" {
 				continue
 			}
 
 			id = res.Id
 			buf := &bytes.Buffer{}
-			res.OwnedBy = user
-			res.Free = false
+			res.User = user
 
 			err := gob.NewEncoder(buf).Encode(res)
 			if err != nil {
@@ -193,20 +182,19 @@ func (s *Storage) Deallocate(id string) error {
 			return store.ErrResourcesNotFound
 		}
 
-		res := Resource{}
+		res := store.Resource{}
 
 		dec := gob.NewDecoder(bytes.NewBuffer(v))
 		if err := dec.Decode(&res); err != nil {
 			return fmt.Errorf("fail decode data %v: %s", v, err)
 		}
 		//log.Printf("'%v' Get result => %v", id, spew.Sdump(res))
-		if res.OwnedBy == "" {
-			return store.ErrResourcesNotFound
+		if res.User == "" {
+			return nil
 		}
 
 		buf := &bytes.Buffer{}
-		res.OwnedBy = ""
-		res.Free = true
+		res.User = ""
 		err := gob.NewEncoder(buf).Encode(res)
 		if err != nil {
 			return fmt.Errorf("encode data %v: %s", res, err)
@@ -235,7 +223,7 @@ func (s *Storage) Reset() error {
 
 		c := b.Cursor()
 		for k, v := c.First(); k != nil; k, v = c.Next() {
-			res := Resource{}
+			res := store.Resource{}
 			dec := gob.NewDecoder(bytes.NewBuffer(v))
 
 			if err := dec.Decode(&res); err != nil {
@@ -243,8 +231,7 @@ func (s *Storage) Reset() error {
 			}
 
 			buf := &bytes.Buffer{}
-			res.OwnedBy = ""
-			res.Free = true
+			res.User = ""
 
 			err := gob.NewEncoder(buf).Encode(res)
 			if err != nil {

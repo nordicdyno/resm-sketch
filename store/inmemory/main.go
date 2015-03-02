@@ -38,11 +38,14 @@ func (s *Storage) ListByUser(user string) (store.ResourcesList, error) {
 		return nil, err
 	}
 
-	list, ok := info.Allocated[user]
-	if !ok {
-		list = make(store.ResourcesList, 0)
+	idsList := make([]string, 0)
+	for _, pair := range info.Allocated {
+		if user != pair.User {
+			continue
+		}
+		idsList = append(idsList, pair.Id)
 	}
-	return list, nil
+	return store.ResourcesList(idsList), nil
 }
 
 func (s *Storage) List() (*store.ResourcesInfo, error) {
@@ -52,21 +55,20 @@ func (s *Storage) List() (*store.ResourcesInfo, error) {
 
 	//log.Println("allocate list with size of", s.left)
 	deallocated := make(store.ResourcesList, 0, s.left)
-	allocatedByUser := make(map[string]store.ResourcesList)
+	allocated := make([]store.ResourceUserPair, 0)
 	for _, res := range s.resources {
 		if res.free {
 			deallocated = append(deallocated, res.id)
-		} else {
-			list, ok := allocatedByUser[res.ownedBy]
-			if !ok {
-				list = make(store.ResourcesList, 0, 1)
-			}
-			list = append(list, res.id)
-			allocatedByUser[res.ownedBy] = list
+			continue
 		}
+		allocated = append(allocated, store.ResourceUserPair{
+			Id:   res.id,
+			User: res.ownedBy,
+		})
 	}
+
 	r := &store.ResourcesInfo{
-		Allocated:   allocatedByUser,
+		Allocated:   allocated,
 		Deallocated: deallocated,
 	}
 	// spew.Dump(r)

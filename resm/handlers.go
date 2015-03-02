@@ -12,6 +12,10 @@ import (
 )
 
 var (
+	outOfResourcesStr = "Out of resources.\n"
+	notAllocatedStr   = "Not allocated.\n"
+)
+var (
 	_ = spew.Config
 	_ = log.Prefix()
 )
@@ -28,7 +32,7 @@ func allocateResourceUser(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == store.ErrResourcesIsOver {
 			w.WriteHeader(http.StatusServiceUnavailable)
-			w.Write([]byte("Out of resources.\n"))
+			w.Write([]byte(outOfResourcesStr))
 			return
 		}
 		panic(err)
@@ -51,7 +55,7 @@ func deallocateResource(w http.ResponseWriter, r *http.Request) {
 		if err == store.ErrResourcesNotFound {
 			//log.Println("write header", http.StatusNotFound)
 			w.WriteHeader(http.StatusNotFound)
-			w.Write([]byte("Not allocated\n"))
+			w.Write([]byte(notAllocatedStr))
 		} else {
 			w.WriteHeader(http.StatusInternalServerError)
 		}

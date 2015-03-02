@@ -83,17 +83,20 @@ func (s *Storage) ListByUser(user string) (store.ResourcesList, error) {
 		return nil, err
 	}
 
-	list, ok := info.Allocated[user]
-	if !ok {
-		list = make(store.ResourcesList, 0)
+	idsList := make([]string, 0)
+	for _, pair := range info.Allocated {
+		if user != pair.User {
+			continue
+		}
+		idsList = append(idsList, pair.Id)
 	}
-	return list, nil
+	return store.ResourcesList(idsList), nil
 }
 
 func (s *Storage) List() (*store.ResourcesInfo, error) {
 	//log.Println("allocate list with size of", s.left)
 	deallocated := make(store.ResourcesList, 0, 0)
-	allocatedByUser := make(map[string]store.ResourcesList)
+	allocated := make([]store.ResourceUserPair, 0)
 	err := s.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte(BucketName))
 		c := b.Cursor()
@@ -111,21 +114,18 @@ func (s *Storage) List() (*store.ResourcesInfo, error) {
 				deallocated = append(deallocated, res.Id)
 				continue
 			}
-			list, ok := allocatedByUser[res.OwnedBy]
-			if !ok {
-				list = make(store.ResourcesList, 0, 8)
-			}
-			list = append(list, res.Id)
-			allocatedByUser[res.OwnedBy] = list
+			allocated = append(allocated, store.ResourceUserPair{
+				Id:   res.Id,
+				User: res.OwnedBy,
+			})
 		}
-
 		return nil
 	})
 	if err != nil {
 		return nil, err
 	}
 	r := &store.ResourcesInfo{
-		Allocated:   allocatedByUser,
+		Allocated:   allocated,
 		Deallocated: deallocated,
 	}
 	// spew.Dump(r)

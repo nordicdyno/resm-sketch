@@ -125,7 +125,7 @@ func (s *Storage) Deallocate(id string) error {
 		return store.ErrResourcesNotFound
 	}
 	if res.free {
-		return store.ErrResourcesNotFound
+		return store.ErrResourcesIsFree
 	}
 
 	res.free = true

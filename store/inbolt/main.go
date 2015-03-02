@@ -190,7 +190,7 @@ func (s *Storage) Deallocate(id string) error {
 		}
 		//log.Printf("'%v' Get result => %v", id, spew.Sdump(res))
 		if res.User == "" {
-			return nil
+			return store.ErrResourcesIsFree
 		}
 
 		buf := &bytes.Buffer{}

@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -52,11 +54,14 @@ func deallocateResource(w http.ResponseWriter, r *http.Request) {
 	//log.Println("deallocateResource err => ", err)
 	if err != nil {
 		//log.Println("Resource", id, "not allocated", err)
-		if err == store.ErrResourcesNotFound {
+		switch err {
+		case store.ErrResourcesIsFree:
+			fallthrough
+		case store.ErrResourcesNotFound:
 			//log.Println("write header", http.StatusNotFound)
 			w.WriteHeader(http.StatusNotFound)
 			w.Write([]byte(notAllocatedStr))
-		} else {
+		default:
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		return
@@ -85,17 +90,29 @@ func listResources(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	var b []byte
-	b, err = json.Marshal(info)
+	var bDeallocated []byte
+	bDeallocated, err = json.Marshal(info.Deallocated)
 	if err != nil {
 		panic(err)
 	}
+
+	bAllocated := new(bytes.Buffer)
+	for n, resource := range info.Allocated {
+		if n != 0 {
+			fmt.Fprintf(bAllocated, ",")
+		}
+		fmt.Fprintf(bAllocated, `"%s":"%s"`, resource.Id, resource.User)
+	}
+
+	listJSONstr := fmt.Sprintf(`{"Allocated":{%s}, "Deallocated": %s}`,
+		bAllocated.String(), string(bDeallocated),
+	)
 
 	//log.Println(string(b))
 	//log.Println("/reset OK, header:", http.StatusNoContent)
 	w.Header().Set("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write(b)
+	w.Write([]byte(listJSONstr))
 }
 
 func listUserResources(w http.ResponseWriter, r *http.Request) {

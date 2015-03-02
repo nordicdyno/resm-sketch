@@ -31,6 +31,7 @@ type ResourceAllocater interface {
 var (
 	ErrResourcesIsOver   = errors.New("Resources are over")
 	ErrResourcesNotFound = errors.New("Resource not found")
+	ErrResourcesIsFree   = errors.New("Resource already free")
 )
 
 func GenResourcesIds(limit int) []string {

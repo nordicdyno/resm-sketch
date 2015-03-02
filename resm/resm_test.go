@@ -49,8 +49,8 @@ func tablesRun(t *testing.T, rh *ResourceHandler, tests []handlerTest) {
 
 		if got != want {
 			//log.Println(got, "!=", want, "?")
-			//t.Errorf("%s: response code = %d, want %d", test.Desc, got, want)
-			t.Fatalf("%s: response code = %d, want %d", test.Desc, got, want)
+			t.Errorf("%s: response code = %d, want %d", test.Desc, got, want)
+			//t.Fatalf("%s: response code = %d, want %d", test.Desc, got, want)
 		}
 
 		if test.Match != nil {

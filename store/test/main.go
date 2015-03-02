@@ -63,9 +63,8 @@ func TenTestDeallocateById(sTen store.ResourceAllocater, t *testing.T) {
 		t.Error("call failed", err)
 	}
 
-	for user, val := range l.Allocated {
-
-		for _, id := range val {
+	for id, val := range l.Allocated {
+		for _, user := range val {
 			err := sTen.Deallocate(id)
 			if err != nil {
 				t.Error("Deallocate failed for resource", user, err)

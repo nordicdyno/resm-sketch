@@ -97,7 +97,7 @@ func listResources(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(bAllocated, `"%s":"%s"`, resource.Id, resource.User)
 	}
 
-	listJSONstr := fmt.Sprintf(`{"Allocated":{%s}, "Deallocated": %s}`,
+	listJSONstr := fmt.Sprintf(`{"allocated":{%s}, "deallocated": %s}`,
 		bAllocated.String(), string(bDeallocated),
 	)
 

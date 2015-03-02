@@ -96,7 +96,7 @@ func TestAllocateResetAndList(t *testing.T) {
 			Method:    "GET",
 			Path:      "/list",
 			Status:    200,
-			MatchJSON: `{"Allocated":{"r0":"my","r1":"him"},"Deallocated":[]}`,
+			MatchJSON: `{"allocated":{"r0":"my","r1":"him"},"deallocated":[]}`,
 		},
 		{
 			Desc:      "list by unknown",

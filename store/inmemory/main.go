@@ -8,23 +8,17 @@ import (
 	"github.com/nordicdyno/resm-sketch/store"
 )
 
-type Resource struct {
-	id      string
-	free    bool
-	ownedBy string
-}
-
 type Storage struct {
-	resources []*Resource
+	resources []*store.Resource
 	// cached value
 	left int
 	sync.Mutex
 }
 
 func NewStorage(limit int) (*Storage, error) {
-	resources := make([]*Resource, limit)
+	resources := make([]*store.Resource, limit)
 	for i, id := range store.GenResourcesIds(limit) {
-		resources[i] = &Resource{id, true, ""}
+		resources[i] = &store.Resource{id, ""}
 	}
 	return &Storage{
 		resources: resources,
@@ -55,14 +49,11 @@ func (s *Storage) List() (*store.ResourcesInfo, error) {
 	deallocated := make(store.ResourcesList, 0, s.left)
 	allocated := make([]store.Resource, 0)
 	for _, res := range s.resources {
-		if res.free {
-			deallocated = append(deallocated, res.id)
+		if res.User == "" {
+			deallocated = append(deallocated, res.Id)
 			continue
 		}
-		allocated = append(allocated, store.Resource{
-			Id:   res.id,
-			User: res.ownedBy,
-		})
+		allocated = append(allocated, *res)
 	}
 
 	r := &store.ResourcesInfo{
@@ -81,22 +72,20 @@ func (s *Storage) Allocate(user string) (string, error) {
 
 	var item string
 	for _, res := range s.resources {
-		if !res.free {
+		if res.User != "" {
 			continue
 		}
-		res.ownedBy = user
-		res.free = false
-		item = res.id
+		res.User = user
+		item = res.Id
 		break
 	}
 	s.left -= 1
-	//log.Println("RETURN", item)
 	return item, nil
 }
 
 func (s *Storage) AddResource(id string) error {
 	s.Lock()
-	s.resources = append(s.resources, &Resource{id, true, ""})
+	s.resources = append(s.resources, &store.Resource{id, ""})
 	s.left += 1
 	s.Unlock()
 	return nil
@@ -107,9 +96,9 @@ func (s *Storage) Deallocate(id string) error {
 	defer s.Unlock()
 
 	var found bool
-	var res *Resource
+	var res *store.Resource
 	for _, res = range s.resources {
-		if res.id != id {
+		if res.Id != id {
 			continue
 		}
 		found = true
@@ -118,11 +107,11 @@ func (s *Storage) Deallocate(id string) error {
 	if !found {
 		return store.ErrResourcesNotFound
 	}
-	if res.free {
+	if res.User == "" {
 		return store.ErrResourcesIsFree
 	}
 
-	res.free = true
+	res.User = ""
 	s.left += 1
 	return nil
 }
@@ -135,7 +124,7 @@ func (s *Storage) Reset() error {
 	defer s.Unlock()
 
 	for _, res := range s.resources {
-		res.free = true
+		res.User = ""
 	}
 	s.left = len(s.resources)
 	return nil

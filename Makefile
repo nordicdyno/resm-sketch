@@ -66,8 +66,10 @@ docker_build_deb: docker_build_bin
 	# " steps depends on your environment, but final ommand would be same: "
 	# "docker cp ${DEB_BUILDER_CONTAINER_NAME}:/root/resm/resm-go_1.0_amd64.deb ./"
 
+GCLOUD_RESM_VER=v1
 docker_supervisor_gcloud: docker_build_bin
-	docker build -rm --tag=gcloud-resm -f docker/gcloud_supervisord.Dockerfile docker/
+	docker build -rm --tag=gcloud-resm:${GCLOUD_RESM_VER} -f docker/gcloud_supervisord.Dockerfile docker/
+	docker tag gcloud-resm:${GCLOUD_RESM_VER} gcloud-resm:latest
 
 fmt:
 	find . -name '*.go' -exec go fmt {} \;

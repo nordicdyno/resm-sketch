@@ -3,10 +3,10 @@ kind: Pod
 apiVersion: v1beta1
 desiredState:
   manifest:
-    version: v1beta1
+    version: v1beta3
     containers:
       - name: resmpd-test
-        image: gcr.io/resm_sketch/gcloud-resm
+        image: gcr.io/resm_sketch/gcloud-resm:latest
         ports:
           - hostPort: 80
             containerPort: 9090

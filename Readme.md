@@ -22,27 +22,24 @@ It is powered with Google Compute Engine, Docker and semi-free .TK domain
 ## Go way
 
 1. Install Go (brew, apt-get or manually http://golang.org/doc/install)
-2. Set GOHOME i.e. to ~/gohome
-3. Fetch and compile binary: `go get github.com/nordicdyno/resm-sketch`
-4. Run it ~/gohome/bin/resm -limit=5 -verbose
+2. Set GOPATH. Primer: `mkdir ~/ghome; export GOPATH=~/ghome`
+3. Fetch and compile binary: `go get github.com/nordicdyno/resm-sketch/resm`
+4. Run: `$GOPATH/bin/resm -limit=5 -verbose`
 
 
 _Hint: you also need to have git and mercurial installed_
 
-## Make way
+## 'Make in local dir'-way
 
-1-2 steps same as in "Go way"
-
-3. Get sources by git `git clone git@github.com:nordicdyno/resm-sketch.git`
-4. Build and resolve dependencies `cd resm-sketch && go get .`
-5. Rebuild and run binary with `make`
+1. Get sources by git `git clone git@github.com:nordicdyno/resm-sketch.git`
+2. `cd resm-sketch`
+3. Build and run binary with `make`
 
 _Hint: To run in persistent mode use target `run_bolt`: `make run_bolt`_
 
 # How to test
 
- 1. Make sure you have done build stage
- 2. Run tests in sources root: `make test`
+Just run tests in sources root: `make test`
 
 # Run locally
 

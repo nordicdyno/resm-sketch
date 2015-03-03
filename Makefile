@@ -5,40 +5,34 @@ DEB_BUILDER_CONTAINER_NAME=resm-deb-builder
 SUPERVISOR_IMAGE_NAME=resm-supervisor:v1.0
 SUPERVISOR_CONTAINER_NAME=resm-supervisor
 
+GOPATH_TMP=.gohome
+
 run: build
-	${GOPATH}/bin/resm -limit=3
+	${GOPATH_TMP}/bin/resm -limit=3 -verbose
 
 run_bolt: build
-	${GOPATH}/bin/resm -limit=3 -file=bolt.db
+	${GOPATH_TMP}/bin/resm -limit=3 -file=bolt.db
 
-build:
-	go install github.com/nordicdyno/resm-sketch/resm
+build: clean
+	./build-local.sh
 
-test: test-plain test-vet
+test: test-plain test-vet test-cover
 
-test-plain:
-	go test github.com/nordicdyno/resm-sketch/store/inmemory
-	go test github.com/nordicdyno/resm-sketch/store/inbolt
-	go test github.com/nordicdyno/resm-sketch/resm
+test-plain: build
+	./tests-local.sh
 
-test-cover:
-	go get golang.org/x/tools/cmd/cover
-	go test -cover github.com/nordicdyno/resm-sketch/store/inmemory
-	go test -cover github.com/nordicdyno/resm-sketch/store/inbolt
-	go test -cover github.com/nordicdyno/resm-sketch/resm
+test-cover: build
+	./tests-local.sh -cover
 
 # mostly useless now, because tests are non concurrent yet
-test-race:
-	go get golang.org/x/tools/cmd/cover
-	go test -race github.com/nordicdyno/resm-sketch/store/inmemory
-	go test -race github.com/nordicdyno/resm-sketch/store/inbolt
-	go test -race github.com/nordicdyno/resm-sketch/resm
+test-race: build
+	./tests-local.sh -race
 
-test-vet:
+test-vet: build
 	go vet github.com/nordicdyno/resm-sketch/resm
 
 clean:
-	rm -rf .src
+	rm -rf ${GOPATH_TMP}
 	find . -name '*.db' -exec rm {} \;
 
 docker_clean:

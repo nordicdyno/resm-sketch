@@ -39,7 +39,10 @@ _Hint: To run in persistent mode use target `run_bolt`: `make run_bolt`_
 
 # How to test
 
-Just run tests in sources root: `make test`
+Run tests in sources root: `make test`
+
+Or just use shell shell script: `./tests-local.sh`
+(build phase should be already has been done before you call script)
 
 # Run locally
 
